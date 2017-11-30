@@ -12,5 +12,5 @@ pub use self::time_span::{ParseError, TimeSpan};
 pub use self::time_stamp::TimeStamp;
 pub use self::time::{GameTime, RealTime, Time};
 pub use self::timer_phase::TimerPhase;
-pub use self::timer::{SharedTimer, Timer};
+pub use self::timer::{CreationError as TimerCreationError, SharedTimer, Timer};
 pub use self::timing_method::TimingMethod;

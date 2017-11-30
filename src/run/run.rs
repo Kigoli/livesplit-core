@@ -6,6 +6,7 @@ use comparison::{default_generators, personal_best, ComparisonGenerator};
 use odds::vec::VecFindRemove;
 use unicase;
 
+/// A Run stores the split times for a specific game and category of a runner.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Run {
     game_icon: Image,
@@ -36,6 +37,7 @@ impl PartialEq for ComparisonGenerators {
 }
 
 impl Run {
+    /// Creates a new Run object with no segments.
     #[inline]
     pub fn new() -> Self {
         Self {
@@ -55,11 +57,13 @@ impl Run {
         }
     }
 
+    /// Accesses the name of the game this Run is for.
     #[inline]
     pub fn game_name(&self) -> &str {
         &self.game_name
     }
 
+    /// Sets the name of the game this Run is for.
     #[inline]
     pub fn set_game_name<S>(&mut self, name: S)
     where
@@ -69,21 +73,25 @@ impl Run {
         self.game_name.push_str(name.as_ref());
     }
 
+    /// Accesses the game's icon.
     #[inline]
     pub fn game_icon(&self) -> &Image {
         &self.game_icon
     }
 
+    /// Sets the game's icon.
     #[inline]
     pub fn set_game_icon<D: Into<Image>>(&mut self, image: D) {
         self.game_icon = image.into();
     }
 
+    /// Accesses the name of the category this Run is for.
     #[inline]
     pub fn category_name(&self) -> &str {
         &self.category_name
     }
 
+    /// Sets the name of the category this Run is for.
     #[inline]
     pub fn set_category_name<S>(&mut self, name: S)
     where
@@ -93,86 +101,127 @@ impl Run {
         self.category_name.push_str(name.as_ref());
     }
 
+    /// Sets the path of the associated splits file in the file system.
     #[inline]
     pub fn set_path(&mut self, path: Option<PathBuf>) {
         self.path = path;
     }
 
-    #[inline]
-    pub fn set_offset(&mut self, offset: TimeSpan) {
-        self.offset = offset;
-    }
-
+    /// Returns the amount of runs that have been attempted with these splits.
     #[inline]
     pub fn attempt_count(&self) -> u32 {
         self.attempt_count
     }
 
+    /// Sets the amount of runs that have been attempted with these splits.
     #[inline]
     pub fn set_attempt_count(&mut self, attempts: u32) {
         self.attempt_count = attempts;
     }
 
+    /// Accesses additional metadata of this Run, like the platform and region
+    /// of the game.
     #[inline]
     pub fn metadata(&self) -> &RunMetadata {
         &self.metadata
     }
 
+    /// Grants mutable access to the additional metadata of this Run, like the
+    /// platform and region of the game.
     #[inline]
     pub fn metadata_mut(&mut self) -> &mut RunMetadata {
         &mut self.metadata
     }
 
+    /// Sets the Time an attempt of this Run should start at.
+    #[inline]
+    pub fn set_offset(&mut self, offset: TimeSpan) {
+        self.offset = offset;
+    }
+
+    /// Accesses the Time an attempt of this Run should start at.
     #[inline]
     pub fn offset(&self) -> TimeSpan {
         self.offset
     }
 
+    /// Marks a Run that a new Attempt has started. If you use it with a Timer,
+    /// this is done automatically.
     pub fn start_next_run(&mut self) {
         self.attempt_count += 1;
         self.has_changed = true;
     }
 
+    /// Accesses the Segments of this Run object.
     #[inline]
     pub fn segments(&self) -> &[Segment] {
         &self.segments
     }
 
+    /// Grants mutable access to the Segments of this Run object.
     #[inline]
     pub fn segments_mut(&mut self) -> &mut Vec<Segment> {
         &mut self.segments
     }
 
+    /// Pushes the segment provided to the end of the list of segments of this Run.
     #[inline]
     pub fn push_segment(&mut self, segment: Segment) {
         self.segments.push(segment);
     }
 
+    /// Accesses a certain segment of this Run.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the index is out of bounds.
     #[inline]
     pub fn segment(&self, index: usize) -> &Segment {
         &self.segments[index]
     }
 
+    /// Mutably accesses a certain segment of this Run.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the index is out of bounds.
     #[inline]
     pub fn segment_mut(&mut self, index: usize) -> &mut Segment {
         &mut self.segments[index]
     }
 
+    /// Accesses the history of all the runs that have been attempted. This does
+    /// not store the actual segment times, just the overall attempt
+    /// information. Information about the individual segments is stored within
+    /// each segment.
     #[inline]
     pub fn attempt_history(&self) -> &[Attempt] {
         &self.attempt_history
     }
 
+    /// Accesses the custom comparisons that are stored in this Run. This
+    /// includes `Personal Best` but excludes all the other Comparison
+    /// Generators.
     #[inline]
     pub fn custom_comparisons(&self) -> &[String] {
         &self.custom_comparisons
     }
 
+    /// Grants mutable access to the custom comparisons that are stored in this
+    /// Run.  This includes `Personal Best` but excludes all the other
+    /// Comparison Generators.
+    ///
+    /// # Warning
+    ///
+    /// You may not delete the `Personal Best` comparison.
     #[inline]
     pub fn custom_comparisons_mut(&mut self) -> &mut Vec<String> {
         &mut self.custom_comparisons
     }
 
+    /// Accesses an iterator that iterates over all the comparisons. This
+    /// includes both the custom comparisons defined by the user and the
+    /// Comparison Generators.
     #[inline]
     pub fn comparisons(&self) -> ComparisonsIter {
         ComparisonsIter {
@@ -181,31 +230,44 @@ impl Run {
         }
     }
 
+    /// Accesses the Auto Splitter Settings that are encoded as XML.
     #[inline]
     pub fn auto_splitter_settings(&self) -> &[u8] {
         &self.auto_splitter_settings
     }
 
+    /// Grants mutable access to the XML encoded Auto Splitter Settings.
+    ///
+    /// # Warning
+    ///
+    /// You need to ensure that the Auto Splitter Settings are encoded as data
+    /// that would be valid as an interior of an XML element.
     #[inline]
     pub fn auto_splitter_settings_mut(&mut self) -> &mut Vec<u8> {
         &mut self.auto_splitter_settings
     }
 
+    /// Returns the amount of segments stored in this Run.
     #[inline]
     pub fn len(&self) -> usize {
         self.segments.len()
     }
 
+    /// Returns `true` if there's no segments stored in this Run.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.segments.is_empty()
     }
 
+    /// Marks the Run as modified, so that it is known that there are changes
+    /// that should be saved.
     #[inline]
     pub fn mark_as_changed(&mut self) {
         self.has_changed = true;
     }
 
+    /// Adds a new Attempt to the Run's Attempt History. This is automatically
+    /// done if the Run is used with a Timer.
     pub fn add_attempt(
         &mut self,
         time: Time,
@@ -222,6 +284,13 @@ impl Run {
         self.add_attempt_with_index(time, index, started, ended, pause_time);
     }
 
+    /// Adds a new Attempt to the Run's Attempt History with a predetermined
+    /// History Index.
+    ///
+    /// # Warning
+    ///
+    /// This index may not overlap with an index that is already in the Attempt
+    /// History.
     pub fn add_attempt_with_index(
         &mut self,
         time: Time,
@@ -234,11 +303,16 @@ impl Run {
         self.attempt_history.push(attempt);
     }
 
+    /// Clears the speedrun.com Run ID of this Run, as the current Run does not
+    /// reflect the run on speedrun.com anymore. This may be the case if a new
+    /// Personal Best is achieved for example.
     #[inline]
     pub fn clear_run_id(&mut self) {
         self.metadata.set_run_id(String::new());
     }
 
+    /// Adds a new custom comparison. If a custom comparison with that name
+    /// already exists, it is not added.
     #[inline]
     pub fn add_custom_comparison<S: Into<String>>(&mut self, comparison: S) {
         let comparison = comparison.into();
@@ -247,6 +321,7 @@ impl Run {
         }
     }
 
+    /// Recalculates all the comparison times the Comparison Generators provide.
     #[inline]
     pub fn regenerate_comparisons(&mut self) {
         for generator in &mut self.comparison_generators.0 {
@@ -254,6 +329,15 @@ impl Run {
         }
     }
 
+    /// Returns a file name (without the extension) suitable for this Run that
+    /// is built the following way:
+    ///
+    /// ```
+    /// Game Name - Category Name
+    /// ```
+    ///
+    /// If either is empty, the dash is omitted. Special characters that cause
+    /// problems in file names are also omitted.
     pub fn extended_file_name(&self, use_extended_category_name: bool) -> String {
         let extended_name = self.extended_name(use_extended_category_name);
 
