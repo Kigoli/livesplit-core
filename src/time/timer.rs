@@ -6,6 +6,37 @@ use std::sync::Arc;
 use std::mem;
 
 /// A Timer provides all the capabilities necessary for doing speedrun attempts.
+///
+/// # Examples
+///
+/// ```
+/// use livesplit_core::{Run, Segment, Timer, TimerPhase};
+///
+/// // Create a run object that we can use with at least one segment.
+/// let mut run = Run::new();
+/// run.set_game_name("Super Mario Odyssey");
+/// run.set_category_name("Any%");
+/// run.push_segment(Segment::new("Cap Kingdom"));
+///
+/// // Create the timer from the run.
+/// let mut timer = Timer::new(run).expect("Run with at least one segment provided");
+///
+/// // Start a new attempt.
+/// timer.start();
+/// assert_eq!(timer.current_phase(), TimerPhase::Running);
+///
+/// // Create a split.
+/// timer.split();
+///
+/// // The run should be finished now.
+/// assert_eq!(timer.current_phase(), TimerPhase::Ended);
+///
+/// // Reset the attempt and confirm that we want to store the attempt.
+/// timer.reset(true);
+///
+/// // The attempt is now over.
+/// assert_eq!(timer.current_phase(), TimerPhase::NotRunning);
+/// ```
 #[derive(Debug, Clone)]
 pub struct Timer {
     run: Run,
@@ -17,7 +48,7 @@ pub struct Timer {
     attempt_ended: Option<AtomicDateTime>,
     start_time: TimeStamp,
     start_time_with_offset: TimeStamp,
-    // This gets adjusted after unpausing
+    // This gets adjusted after resuming
     adjusted_start_time: TimeStamp,
     time_paused_at: TimeSpan,
     is_game_time_paused: bool,

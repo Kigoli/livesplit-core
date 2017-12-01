@@ -7,6 +7,20 @@ use odds::vec::VecFindRemove;
 use unicase;
 
 /// A Run stores the split times for a specific game and category of a runner.
+///
+/// # Examples
+///
+/// ```
+/// use livesplit_core::{Run, Segment};
+///
+/// let mut run = Run::new();
+///
+/// run.set_game_name("Super Mario Odyssey");
+/// run.set_category_name("Darker Side");
+///
+/// run.push_segment(Segment::new("Cap Kingdom"));
+/// run.push_segment(Segment::new("Cascade Kingdom"));
+/// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct Run {
     game_icon: Image,
@@ -332,12 +346,11 @@ impl Run {
     /// Returns a file name (without the extension) suitable for this Run that
     /// is built the following way:
     ///
-    /// ```
     /// Game Name - Category Name
-    /// ```
     ///
     /// If either is empty, the dash is omitted. Special characters that cause
-    /// problems in file names are also omitted.
+    /// problems in file names are also omitted. If an extended category name is
+    /// used, the variables of the category are appended in a parenthesis.
     pub fn extended_file_name(&self, use_extended_category_name: bool) -> String {
         let extended_name = self.extended_name(use_extended_category_name);
 
@@ -350,6 +363,12 @@ impl Run {
             .collect()
     }
 
+    /// Returns a name suitable for this Run that is built the following way:
+    ///
+    /// Game Name - Category Name
+    ///
+    /// If either is empty, the dash is omitted. If an extended category name is
+    /// used, the variables of the category are appended in a parenthesis.
     pub fn extended_name(&self, use_extended_category_name: bool) -> Cow<str> {
         let mut name = Cow::Borrowed(self.game_name());
 
@@ -372,6 +391,11 @@ impl Run {
         name
     }
 
+    /// Returns an extended category name that possibly includes the region,
+    /// platform and variables, depending on the arguments provided. An extended
+    /// category name may look like this:
+    ///
+    /// Any% (No Tuner, JPN, Wii Emulator)
     pub fn extended_category_name(
         &self,
         show_region: bool,
@@ -459,10 +483,15 @@ impl Run {
         category_name
     }
 
+    /// Returns the maximum index currently in use by the Attempt History. This
+    /// mostly serves as a helper function for the Timer.
     pub fn max_attempt_history_index(&self) -> Option<i32> {
         self.attempt_history().iter().map(|x| x.index()).max()
     }
 
+    /// Applies some fixing algorithms on the Run. This includes fixing the
+    /// comparison times and history, removing duplicates in the segment
+    /// histories and removing empty times.
     pub fn fix_splits(&mut self) {
         for &method in &TimingMethod::all() {
             self.fix_comparison_times_and_history(method);
@@ -471,6 +500,7 @@ impl Run {
         self.remove_null_values();
     }
 
+    /// Clears out the Attempt History and the Segment Histories of all the segments.
     pub fn clear_history(&mut self) {
         self.attempt_history.clear();
         for segment in &mut self.segments {
@@ -478,6 +508,10 @@ impl Run {
         }
     }
 
+    /// Clears out the Attempt History, the Segment Histories, all the times,
+    /// sets the Attempt Count to 0 and clears the speedrun.com run id
+    /// association. All Custom Comparisons other than `Personal Best` are
+    /// deleted as well.
     pub fn clear_times(&mut self) {
         self.clear_history();
         self.custom_comparisons.retain(|c| c == personal_best::NAME);
@@ -581,6 +615,7 @@ impl Run {
         }
     }
 
+    /// Returns the minimum index in use by all the Segment Histories.
     pub fn min_segment_history_index(&self) -> i32 {
         self.segments
             .iter()
@@ -589,9 +624,11 @@ impl Run {
             .unwrap()
     }
 
+    /// Fixes the Segment History by calculating the segment times from the
+    /// Personal Best times and adding those to the Segment History.
     pub fn import_segment_history(&mut self) {
         let mut index = self.min_segment_history_index();
-        for &timing_method in &[TimingMethod::RealTime, TimingMethod::GameTime] {
+        for &timing_method in &TimingMethod::all() {
             index -= 1;
             let mut prev_time = TimeSpan::zero();
 
@@ -609,6 +646,8 @@ impl Run {
         }
     }
 
+    /// Fixes the Segment History by adding the Best Segment Times to the
+    /// Segment History.
     pub fn import_best_segment(&mut self, segment_index: usize) {
         let best_segment_time = self.segments[segment_index].best_segment_time();
         if best_segment_time.real_time.is_some() || best_segment_time.game_time.is_some() {
@@ -619,6 +658,8 @@ impl Run {
         }
     }
 
+    /// Updates the Segment History by adding the Split Times of the current
+    /// attempt up to the provided current split index to the Segment History.
     pub fn update_segment_history(&mut self, current_split_index: usize) {
         let mut last_split_time = Time::zero();
 
@@ -662,6 +703,8 @@ fn fix_history_from_best_segment_times(segment: &mut Segment, method: TimingMeth
     }
 }
 
+/// Iterator that iterates over all the comparisons. This includes both the
+/// custom comparisons defined by the user and the Comparison Generators.
 pub struct ComparisonsIter<'a> {
     custom: &'a [String],
     generators: &'a [Box<ComparisonGenerator>],
