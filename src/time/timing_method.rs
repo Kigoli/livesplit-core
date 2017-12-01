@@ -8,7 +8,7 @@ pub enum TimingMethod {
     RealTime = 0,
     /// Game Time describes the timing that is provided by the game that is
     /// being run. This is entirely optional and may either be Real Time with
-    /// loading times removed or some timer provided by the game.
+    /// loading times removed or some time provided by the game.
     GameTime = 1,
 }
 

@@ -692,7 +692,7 @@ fn fix_history_from_null_best_segments(segment: &mut Segment, method: TimingMeth
 
 fn fix_history_from_best_segment_times(segment: &mut Segment, method: TimingMethod) {
     if let Some(best_segment) = segment.best_segment_time()[method] {
-        for &mut (_, ref mut time) in segment.segment_history_mut() {
+        for &mut (_, ref mut time) in segment.segment_history_mut().iter_mut() {
             // Make sure no times in the history are lower than the Best Segment
             if let Some(ref mut time) = time[method] {
                 if *time < best_segment {
