@@ -1,3 +1,6 @@
+//! Provides functionality for calculating the Sum of Best Segments and the Sum
+//! of Worst Segments for whole runs or specific parts.
+
 pub mod best;
 pub mod worst;
 

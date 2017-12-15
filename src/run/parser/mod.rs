@@ -21,7 +21,7 @@
 //! let load_files = true;
 //!
 //! // Actually parse the file.
-//! let result = composite::parse(file, Some(path), load_files)
+//! let result = composite::parse(file, Some(path), load_files);
 //! let parsed = result.expect("Not a valid splits file");
 //!
 //! // Print out the detected file format.

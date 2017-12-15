@@ -1,3 +1,8 @@
+//! Provides the Graph Component and relevant types for using it. The Graph
+//! Component visualizes how far the current attempt has been ahead / behind the
+//! chosen comparison throughout the whole attempt. All the individual deltas
+//! are shown as points in a graph.
+
 use {analysis, comparison, GeneralLayoutSettings, TimeSpan, Timer, TimerPhase};
 use serde_json::{to_writer, Result};
 use std::io::Write;
@@ -10,27 +15,52 @@ const GRAPH_EDGE_MIN: f32 = 5.0;
 const WIDTH: f32 = 180.0;
 const HEIGHT: f32 = 120.0;
 
+/// The Graph Component visualizes how far the current attempt has been ahead /
+/// behind the chosen comparison throughout the whole attempt. All the
+/// individual deltas are shown as points in a graph.
 #[derive(Default, Clone)]
 pub struct Component {
     settings: Settings,
 }
 
+/// The Settings for this component.
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    /// The comparison chosen. Uses the Timer's current comparison if set to
+    /// `None`.
     pub comparison_override: Option<String>,
+    /// Specifies if the best segments should be colored with the layout's best
+    /// segment color.
     pub show_best_segments: bool,
+    /// Specifies if the graph should automatically adjust to all the changes
+    /// automatically. If this is deactivated, the only changes to the graph
+    /// happen whenever the current segment changes.
     pub live_graph: bool,
+    /// Flips the graph. If set to `false`, the times ahead of the comparison
+    /// are at bottom and the times behind are at the top. This settings flips
+    /// it.
     pub flip_graph: bool,
+    /// The background color shown for the region behind the graph that shows
+    /// the times that are behind the comparison.
     pub behind_background_color: Color,
+    /// The background color shown for the region behind the graph that shows
+    /// the times that are ahead of the comparison.
     pub ahead_background_color: Color,
+    /// The color of the grid lines on the graph.
     pub grid_lines_color: Color,
+    /// The color of the lines connecting all the graph's points.
     pub graph_lines_color: Color,
+    /// The color of the polygon connecting all the graph's points. The partial
+    /// fill color is only used for live changes.
     pub partial_fill_color: Color,
+    /// The color of the polygon connecting all the graph's points.
     pub complete_fill_color: Color,
+    /// The height of the graph.
     pub height: u32,
 }
 
+/// The state object describes the information to visualize for this component.
 #[derive(Serialize, Deserialize)]
 pub struct State {
     pub points: Vec<Point>,
@@ -41,11 +71,17 @@ pub struct State {
     pub is_flipped: bool,
     pub top_background_color: Color,
     pub bottom_background_color: Color,
+    /// The color of the grid lines on the graph.
     pub grid_lines_color: Color,
+    /// The color of the lines connecting all the graph's points.
     pub graph_lines_color: Color,
+    /// The color of the polygon connecting all the graph's points. The partial
+    /// fill color is only used for live changes.
     pub partial_fill_color: Color,
+    /// The color of the polygon connecting all the graph's points.
     pub complete_fill_color: Color,
     pub best_segment_color: Color,
+    /// The height of the graph.
     pub height: u32,
 }
 
@@ -75,6 +111,7 @@ impl Default for Settings {
 }
 
 impl State {
+    /// Encodes the state object's information as JSON.
     pub fn write_json<W>(&self, writer: W) -> Result<()>
     where
         W: Write,
@@ -93,10 +130,12 @@ struct DrawInfo {
 }
 
 impl Component {
+    /// Creates a new Graph Component.
     pub fn new() -> Self {
         Default::default()
     }
 
+    /// Creates a new Graph Component with the given settings.
     pub fn with_settings(settings: Settings) -> Self {
         Self {
             settings,
@@ -104,14 +143,17 @@ impl Component {
         }
     }
 
+    /// Accesses the settings of the component.
     pub fn settings(&self) -> &Settings {
         &self.settings
     }
 
+    /// Grants mutable access to the settings of the component.
     pub fn settings_mut(&mut self) -> &mut Settings {
         &mut self.settings
     }
 
+    /// Accesses the name of the component.
     pub fn name(&self) -> Cow<str> {
         self.text(
             self.settings
@@ -129,6 +171,7 @@ impl Component {
         }
     }
 
+    /// Calculates the component's state based on the timer and layout settings provided.
     pub fn state(&self, timer: &Timer, layout_settings: &GeneralLayoutSettings) -> State {
         let comparison = comparison::resolve(&self.settings.comparison_override, timer);
         let comparison = comparison::or_current(comparison, timer);
@@ -150,6 +193,8 @@ impl Component {
         state
     }
 
+    /// Accesses a generic description of the settings available for this
+    /// component and their current values.
     pub fn settings_description(&self) -> SettingsDescription {
         SettingsDescription::with_fields(vec![
             Field::new(
@@ -190,6 +235,13 @@ impl Component {
         ])
     }
 
+    /// Sets a setting's value by its index and the given value.
+    ///
+    /// # Panics
+    ///
+    /// This panics if the type of the value to be set is not compatible with
+    /// the type of the setting's value. A panic can also occur if the index of
+    /// the setting provided is out of bounds.
     pub fn set_value(&mut self, index: usize, value: Value) {
         match index {
             0 => self.settings.comparison_override = value.into(),

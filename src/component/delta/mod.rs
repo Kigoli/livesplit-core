@@ -1,3 +1,7 @@
+//! Provides the Delta Component and relevant types for using it. The Delta
+//! Component is a component that shows the how far ahead or behind the current
+//! attempt is compared to the chosen comparison.
+
 use {comparison, GeneralLayoutSettings, Timer};
 use serde_json::{to_writer, Result};
 use std::io::Write;
@@ -10,18 +14,29 @@ use super::DEFAULT_INFO_TEXT_GRADIENT;
 #[cfg(test)]
 mod tests;
 
+/// The Delta Component is a component that shows the how far ahead or behind
+/// the current attempt is compared to the chosen comparison.
 #[derive(Default, Clone)]
 pub struct Component {
     settings: Settings,
 }
 
+/// The Settings for this component.
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    /// The background shown behind the component.
     pub background: Gradient,
+    /// The comparison chosen. Uses the Timer's current comparison if set to
+    /// `None`.
     pub comparison_override: Option<String>,
+    /// The color of the label. If `None` is specified, the color is taken from
+    /// the layout.
     pub label_color: Option<Color>,
+    /// Specifies if the decimals should not be shown anymore when the
+    /// visualized delta is above one minute.
     pub drop_decimals: bool,
+    /// The accuracy of the time shown.
     pub accuracy: Accuracy,
 }
 
@@ -37,9 +52,13 @@ impl Default for Settings {
     }
 }
 
+/// The state object describes the information to visualize for this component.
 #[derive(Serialize, Deserialize)]
 pub struct State {
+    /// The background shown behind the component.
     pub background: Gradient,
+    /// The color of the label. If `None` is specified, the color is taken from
+    /// the layout.
     pub label_color: Option<Color>,
     pub text: String,
     pub time: String,
