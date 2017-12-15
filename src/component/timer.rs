@@ -1,3 +1,8 @@
+//! Provides the Timer Component and relevant types for using it. The Timer
+//! Component is a component that shows the total time of the current attempt as
+//! a digital clock. The color of the time shown is based on a how well the
+//! current attempt is doing compared to the chosen comparison.
+
 use {GeneralLayoutSettings, TimeSpan, Timer, TimerPhase, TimingMethod};
 use time::formatter::{timer as formatter, Accuracy, DigitsFormat, TimeFormatter};
 use analysis::split_color;
@@ -7,20 +12,38 @@ use std::borrow::Cow;
 use settings::{Color, Field, Gradient, SemanticColor, SettingsDescription, Value};
 use palette::{Hsv, Rgb};
 
+/// The Timer Component is a component that shows the total time of the current
+/// attempt as a digital clock. The color of the time shown is based on a how
+/// well the current attempt is doing compared to the chosen comparison.
 #[derive(Default, Clone)]
 pub struct Component {
     settings: Settings,
 }
 
+/// The Settings for this component.
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    /// The background shown behind the component.
     pub background: Gradient,
+    /// Specifies the Timing Method to use. If set to `None` the Timing Method
+    /// of the Timer is used for showing the time. Otherwise the Timing Method
+    /// provided is used.
     pub timing_method: Option<TimingMethod>,
+    /// The height of the timer.
     pub height: u32,
+    /// Instead of automatically determining the color of the time shown, based
+    /// on a how well the current attempt is doing, a specific color to always
+    /// be used can be provided instead.
     pub color_override: Option<Color>,
+    /// The Timer Component automatically converts the color it is supposed to
+    /// use into a gradient and shows that. If this is set to `false` the actual
+    /// color is used instead of a gradient.
     pub show_gradient: bool,
+    /// Determines how many digits are to always be shown. If the duration is
+    /// lower than the digits to be shown, they are filled up with zeros.
     pub digits_format: DigitsFormat,
+    /// The accuracy of the time shown.
     pub accuracy: Accuracy,
 }
 

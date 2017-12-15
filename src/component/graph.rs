@@ -1,7 +1,7 @@
 //! Provides the Graph Component and relevant types for using it. The Graph
-//! Component visualizes how far the current attempt has been ahead / behind the
-//! chosen comparison throughout the whole attempt. All the individual deltas
-//! are shown as points in a graph.
+//! Component visualizes how far the current attempt has been ahead or behind
+//! the chosen comparison throughout the whole attempt. All the individual
+//! deltas are shown as points in a graph.
 
 use {analysis, comparison, GeneralLayoutSettings, TimeSpan, Timer, TimerPhase};
 use serde_json::{to_writer, Result};
@@ -15,7 +15,7 @@ const GRAPH_EDGE_MIN: f32 = 5.0;
 const WIDTH: f32 = 180.0;
 const HEIGHT: f32 = 120.0;
 
-/// The Graph Component visualizes how far the current attempt has been ahead /
+/// The Graph Component visualizes how far the current attempt has been ahead or
 /// behind the chosen comparison throughout the whole attempt. All the
 /// individual deltas are shown as points in a graph.
 #[derive(Default, Clone)]
