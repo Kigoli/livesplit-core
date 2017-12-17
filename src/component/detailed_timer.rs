@@ -67,7 +67,8 @@ pub struct State {
     pub segment_name: Option<String>,
     /// The segment's icon encoded as a Data URL. This value is only specified
     /// whenever the icon changes. If you explicitly want to query this value,
-    /// remount the component.
+    /// remount the component. The String itself may be empty. This indicates
+    /// that there is no icon.
     pub icon_change: Option<String>,
 }
 
@@ -143,7 +144,8 @@ impl Component {
         "Detailed Timer".into()
     }
 
-    /// Calculates the component's state based on the timer and layout settings provided.
+    /// Calculates the component's state based on the timer and layout settings
+    /// provided.
     pub fn state(&mut self, timer: &Timer, layout_settings: &GeneralLayoutSettings) -> State {
         let current_phase = timer.current_phase();
         let timing_method = self.settings

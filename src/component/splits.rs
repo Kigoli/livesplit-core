@@ -69,7 +69,8 @@ pub struct SplitState {
     pub time: String,
     pub semantic_color: SemanticColor,
     pub visual_color: Color,
-    /// Describes if this segment is the segment the active attempt is currently on.
+    /// Describes if this segment is the segment the active attempt is currently
+    /// on.
     pub is_current_split: bool,
     /// The index of the segment based on all the segments of the run. This may
     /// differ from the index of this `SplitState` in the `State` object, as
@@ -88,7 +89,8 @@ pub struct IconChange {
     /// object. The corresponding index is the `index` field of the `SplitState`
     /// object.
     pub segment_index: usize,
-    /// The segment's icon encoded as a Data URL.
+    /// The segment's icon encoded as a Data URL. The String itself may be
+    /// empty. This indicates that there is no icon.
     pub icon: String,
 }
 
@@ -185,7 +187,8 @@ impl Component {
         "Splits".into()
     }
 
-    /// Calculates the component's state based on the timer and layout settings provided.
+    /// Calculates the component's state based on the timer and layout settings
+    /// provided.
     pub fn state(&mut self, timer: &Timer, layout_settings: &GeneralLayoutSettings) -> State {
         // Reset Scroll Offset when any movement of the split index is observed.
         if self.current_split_index != timer.current_split_index() {

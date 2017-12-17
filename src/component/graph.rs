@@ -171,7 +171,8 @@ impl Component {
         }
     }
 
-    /// Calculates the component's state based on the timer and layout settings provided.
+    /// Calculates the component's state based on the timer and layout settings
+    /// provided.
     pub fn state(&self, timer: &Timer, layout_settings: &GeneralLayoutSettings) -> State {
         let comparison = comparison::resolve(&self.settings.comparison_override, timer);
         let comparison = comparison::or_current(comparison, timer);

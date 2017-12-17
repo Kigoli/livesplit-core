@@ -14,7 +14,7 @@
 //! use std::path::PathBuf;
 //!
 //! // Load the file.
-//! let path = PathBuf::from("splits_file");
+//! let path = PathBuf::from("path/to/splits_file");
 //! let file = BufReader::new(File::open(&path).expect("File not found"));
 //!
 //! // We want to load additional files from the file system, like segment icons.

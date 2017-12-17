@@ -1,5 +1,7 @@
 #![allow(unknown_lints)]
 #![warn(missing_docs)]
+// Necessary for some larger quick-error based errors.
+#![recursion_limit = "128"]
 
 //! livesplit-core is a library that provides a lot of functionality for creating a speedrun timer.
 //!
